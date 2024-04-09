@@ -1,0 +1,394 @@
+[
+  {
+    "input": "Narrative: I did not need to deal with customer service on my last vacation rental which was nice\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Excellent response dealing with child seat.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: the agent obviously hates their job more than I hate mine and that surprises me\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: They were friendly and helpful enough.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The car I reserved was not ready.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: No suggestions.  Customer Service was good.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: slow and stupid\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: we got the car quickly\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Waiting line is too long.  They need to speed up the process.\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: I recently rented a car and they were outstanding.  The customer service rep was very helpful and courteous.  They even let me extend my rental by a couple of hours for no charge at all. I was very pleased with my experience and I would go back.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Excellent response dealing with child seat.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The customer service agent was helpful, but I find that providing all of the information to the agent takes too long.  It would be nice if I could provide all of the information to the agent prior to coming the rental place.\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: Please lower the prices.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: They moved me in and out quickly. The shuttle driver drove like a maniac.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: very friendly, brought the car to the hotel\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I had to pay more because of some hidden fees. It disappointed me.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Employees had nice, new uniforms.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Please stop increasing the prices.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Everyone was very friendly. They even drove us to the airport since we were running late for our flight.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Very good. willing to drop me off and pick me up from location, upgraded me to higher level due to availability\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I rented over the internet, and there were no problems with the reservation or pick-up of the vehicle.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I have never rented the car for a week.  It was great experience. It was in agreement with what my friend said about this company.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: sorely lacking  helpdesk was not much helpfull\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: I recently rented a car and they were outstanding.  The customer service rep was very helpful and courteous.  They even let me extend my rental by a couple of hours for no charge at all. I was very pleased with my experience and I would go back.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: For leisure/vacation, I have never personally rented the car.  I have always left that up to my significant other and she did not complain to use this company\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: There was still a live person however we arrived very late.  We had no problems with car return.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: adequate to the price. It was fine\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: All the people I dealt with were pleasant and helpful.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The rental car guy was cute.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: They were competent.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: They forgot to ask for my driver's license.\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: Everyone was very helpful.  The car was ready for me on time and I didn't have to wait a long time at the counter.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The better the Customer service, the more likely it will be for me to rent from that company again  they should learn from this\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: Good experience with all the rental co.'s I contacted. I Just called with rental dates and received pricing and selected rental co.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Experience was fine\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The person who assisted me was not very friendly and didn't like to give the details I was asking for (gas refill packages, insurance, etc.).\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: They were actually very nice. It was in Rome and there was a language barrier, but we overcame it.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: It took quite a long time, about 45 minutes to an hour.  Several attendants but the line was about 20-25 deep.  Check out was very quick.  A minute or two was all.  Overall a pretty good experience.\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: The people where generally good, but overworked.  The printer went down.  The poor woman working the register was about to pull her hair out.  Customers were yelling at her, not me, but she was not in charge of the issues.\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: We had a small problem with the size of car we reserved being available. The company was able to send another car over from a different location. We were delayed in getting on the road, but were satisfied with the car.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: It would be nice if they included maps to the airport drop off with the car, last time we got lost returning the car and almost missed the flight.  There was nothing on the exit that indicated rental returns.  Actually the one I really liked, was when we\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: We got our car very quickly.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The people were very nice.  Directions to and from our hotel, the rental company location and tourists attractions were given and they were happy to help us out.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Customer service was fine as I recall. No problems.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Did not have some problems. My car was not ready on time.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Agents always want me to take extra insurance but this time they insisted too much.\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: I HATE how they pressure you to buy add-on service.\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: Had problems with windshield wipers that affected usability.  Problem was not solved.  Customer service was NOT helpful. Because of franchising, I was not able to get help from an office other than the one I rented from.  I had driven 60 miles from that location and there was another location 2 miles from where I was staying.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: They did not have the car I wanted.  upgraded me to a car I did not like and did not want.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Do not try sell what I do not need.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: I thought that they were very short and not very friendly. I felt like they hated their job and could care less about the customer.\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: price TOO HIGH and off premise location is NOT convenient.\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: Customer service was good at MSP airport and the process was very fast.  From getting off of the plane to leaving with my rental car was less than 45 minutes.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: they could not provide driving directions\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: friendly people\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: They did not have the car I wanted.  upgraded me to a car I did not like and did not want.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Agents always want me to take extra insurance but this time they insisted too much.\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: they were fine.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Customer service was friendly and helpful.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I did not need to deal with customer service on my last vacation rental which was nice\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: They did not have the car I wanted.  upgraded me to a car I did not like and did not want.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Customer service was fine\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Anywhere you go you will find good customer service and bad customer service.  Since I have rented so many cars, there have been too many experiences to recall so I can't say anything definitely bad\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Last time I rented a car was when I went skiing with my whole family.  We got a Chevy Blazer.  We didn't think it was as large as a Ford Explorer, so we asked to switch.  The agent was very nice and gave us the Ford Explorer.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I didn't get the car I was told would be available.  There were some hidden fees added on to the price I was quoted.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Please back to lower the prices.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: I do not  understand why I have to pay additional fee if vehicle is returned without a full tank.\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: took a long time to check in, and it would have been nice if someone explained how to get the convertible top down.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Customer service is horrible. I reserved through on-line which did not indicate/state I had to provide proof of insurance during pickup. The manager denied the reservation and after long and rude argument he finally gave in.\nAction:\n",
+    "output": "Voucher"
+  },
+  {
+    "input": "Narrative: they were fast and friendly.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The customer service was very friendly and knowledgeable.  She suggested to upgrade to the SUV and it worked out much better for our trip.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The rental car person was impertinent.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I would like the personnel to pretend they care about customer, at least.\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: The car rental company that I went with had very good customer service. They were out of a certain car I reserved and gave me a upgrade and apologized.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Customer Service was quick and friendly.  I received my car with little hassles.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: It took us almost three hours just to get a car! It was absurd.\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: Experience was fine, usually try to get you to upgrade.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Agents usually try to get you to take insurance and pay for full tank of gas.  Some persist even after a no thanks.  Even after noting preferences on my frequent user file that says I don't want them.\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: they were fine.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Customer service was outstanding. Got a free upgrade without even asking. Everyone was very courteous and friendly.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Person very friendly but only person working counter\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: all went quite smoothly... it was Enterprise, so they even picked me up to get the car... it was very convenient.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Do not try sell what I do not need.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: No problems encountered\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I was happy that we arrived very late and there was still a live person to help us get our rental.  We had no problems with the car, and returned it easily.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Customer service was very good.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: customer service was great until we returned the car.  I experienced an issue with damage to the car, and felt that things were left unanswered and still waiting for a response from them.\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: It was okay, we got the car quickly, which is the most important thing\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: I would like the personnel to pretend they care about customer, at least.\nAction:\n",
+    "output": "On-demand pickup location"
+  },
+  {
+    "input": "Narrative: Customer service was outstanding. Got a free upgrade without even asking. Everyone was very courteous and friendly.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Employees had nice, new uniforms.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Customer Service at Alamo was RUDE. We waited in line for over an hour to get our car. Car was bad. Had to change it few days later. Another family traveling with us was upgraded to a larger car as they were out of the type of car booked.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: they could not provide driving directions\nAction:\n",
+    "output": "Premium features"
+  },
+  {
+    "input": "Narrative: it was a great experience\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: Customer Service was quick and friendly.  I received my car with little hassles.\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: It was fine\nAction:\n",
+    "output": "NA"
+  },
+  {
+    "input": "Narrative: The only unpleasant aspects of interacting with personnel from the company was having to wait in a long line since most windows were closed. Also, they tried really hard to sell additional insurance coverage which was obnoxious.\nAction:\n",
+    "output": "Free Upgrade"
+  },
+  {
+    "input": "Narrative: Customer service was great, but I wish they had searched the car when I returned it.  I left my Palm Pilot in the backseat for 2 days before I noticed it was missing!  Fortunately the car was still in the lot when I called and they were able to ship it to me.\nAction:\n",
+    "output": "NA"
+  }
+]
