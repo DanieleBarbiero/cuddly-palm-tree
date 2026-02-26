@@ -2,13 +2,12 @@
 from __future__ import annotations
 
 import json
-import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from PySide6.QtCore import Qt, QProcess, QTimer, QSize
+from PySide6.QtCore import Qt, QProcess, QTimer
 from PySide6.QtGui import QAction, QFont
 from PySide6.QtWidgets import (
     QApplication,
@@ -39,7 +38,13 @@ from PySide6.QtWidgets import (
 )
 
 from core.orchestrator import Orchestrator, WorkItem
-from core.tool_registry import ToolDef, load_tools_yaml, tool_accepts_item
+from core.tool_registry import (
+    PipelineProfile,
+    ToolDef,
+    load_pipeline_profiles,
+    load_tools_yaml,
+    tool_accepts_item,
+)
 from core.util import now_iso, read_json, ensure_dir, jsonl_append
 
 
@@ -47,6 +52,8 @@ from core.util import now_iso, read_json, ensure_dir, jsonl_append
 class ToolRunRequest:
     tool: ToolDef
     params: Dict[str, Any]
+    skip: bool = False
+    skip_reason: str = ""
 
 
 class ToolRunner:
@@ -70,6 +77,7 @@ class ToolRunner:
 
         self.on_event = None   # callable(event_dict)
         self.on_finished = None  # callable(exit_code, step_meta_or_none)
+        self.on_step_finished = None  # callable(tool_id, step_meta)
 
     def is_running(self) -> bool:
         return self.proc is not None and self.proc.state() != QProcess.NotRunning
@@ -92,6 +100,33 @@ class ToolRunner:
         tool = req.tool
         self.current_tool = tool
         self.current_step_dir = step_dirs[tool.id]
+
+        if req.skip:
+            self._emit({
+                "t": now_iso(),
+                "type": "log",
+                "level": "info",
+                "tool_id": tool.id,
+                "message": req.skip_reason or "Step skipped",
+            })
+            step_meta = {
+                "doc_id": self.current_item.doc_id,
+                "run_id": self.current_run_id,
+                "tool_id": tool.id,
+                "started_at": now_iso(),
+                "ended_at": now_iso(),
+                "status": "skipped",
+                "exit_code": 0,
+                "outputs": [],
+                "error": None,
+                "skip_reason": req.skip_reason or "outputs already available",
+            }
+            json_path = self.current_step_dir / "step_meta.json"
+            json_path.write_text(json.dumps(step_meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            if self.on_step_finished:
+                self.on_step_finished(tool.id, step_meta)
+            self._start_next(step_dirs)
+            return
 
         # Build command
         if tool.command_kind != "python_module":
@@ -171,6 +206,9 @@ class ToolRunner:
                 except Exception:
                     meta = None
 
+        if tool and meta and self.on_step_finished:
+            self.on_step_finished(tool.id, meta)
+
         # if failed, stop the queue
         if exit_code != 0:
             if self.on_finished:
@@ -197,6 +235,7 @@ class MainWindow(QMainWindow):
         self.orch = Orchestrator(self.work_root)
         self.tools_path = self.base_dir / "tools.yaml"
         self.tools: List[ToolDef] = load_tools_yaml(self.tools_path)
+        self.profiles: List[PipelineProfile] = load_pipeline_profiles(self.tools_path, self.tools)
 
         self.current_item: Optional[WorkItem] = None
         self.current_run_id: Optional[str] = None
@@ -204,6 +243,7 @@ class MainWindow(QMainWindow):
         self.runner = ToolRunner(self)
         self.runner.on_event = self.on_tool_event
         self.runner.on_finished = self.on_tool_queue_finished
+        self.runner.on_step_finished = self.on_step_finished
 
         # UI
         self._build_ui()
@@ -252,8 +292,25 @@ class MainWindow(QMainWindow):
         right_l.setContentsMargins(8, 8, 8, 8)
 
         # Tool tree (grouped) with checkboxes
+        cfg_row = QHBoxLayout()
+        self.profile_combo = QComboBox()
+        self.profile_combo.addItem("No profile", "")
+        for profile in self.profiles:
+            self.profile_combo.addItem(profile.name, profile.id)
+        self.profile_combo.currentIndexChanged.connect(self.on_profile_changed)
+
+        self.exec_mode_combo = QComboBox()
+        self.exec_mode_combo.addItem("Manual (step-by-step)", "manual")
+        self.exec_mode_combo.addItem("Automatic (run pipeline)", "automatic")
+
+        cfg_row.addWidget(QLabel("Profile"))
+        cfg_row.addWidget(self.profile_combo, 1)
+        cfg_row.addWidget(QLabel("Mode"))
+        cfg_row.addWidget(self.exec_mode_combo)
+        right_l.addLayout(cfg_row)
+
         top_row = QHBoxLayout()
-        self.run_btn = QPushButton("Run selected")
+        self.run_btn = QPushButton("Run")
         self.run_btn.clicked.connect(self.on_run_selected)
         self.run_btn.setEnabled(False)
 
@@ -393,10 +450,42 @@ class MainWindow(QMainWindow):
         self.filter_tools_for_current_item()
         self.update_retry_button_state()
 
+    def selected_profile(self) -> Optional[PipelineProfile]:
+        profile_id = str(self.profile_combo.currentData() or "")
+        if not profile_id:
+            return None
+        return next((p for p in self.profiles if p.id == profile_id), None)
+
+    def selected_mode(self) -> str:
+        return str(self.exec_mode_combo.currentData() or "manual")
+
+    def _artifact_exists_in_run(self, run_id: str, artifact_name: str) -> bool:
+        if not self.current_item:
+            return False
+        run_dir = self.current_item.work_dir / "runs" / run_id / "steps"
+        if not run_dir.exists():
+            return False
+        for step in run_dir.iterdir():
+            if not step.is_dir():
+                continue
+            if (step / artifact_name).exists():
+                return True
+        return False
+
+    def _tool_is_executable(self, tool: ToolDef) -> bool:
+        if not self.current_run_id:
+            return True
+        for req in tool.requires:
+            if not self._artifact_exists_in_run(self.current_run_id, req):
+                return False
+        return True
+
     def filter_tools_for_current_item(self) -> None:
         item_type = self.current_item.item_type if self.current_item else None
+        profile = self.selected_profile()
+        profile_tool_ids = set(profile.tool_ids) if profile else set()
 
-        # show/hide tool items based on accepts
+        # show/hide tool items based on input compatibility/profile and disable when prereqs are missing
         root_count = self.tools_tree.topLevelItemCount()
         for gi in range(root_count):
             gitem = self.tools_tree.topLevelItem(gi)
@@ -405,12 +494,31 @@ class MainWindow(QMainWindow):
                 titem = gitem.child(ci)
                 tool_id = titem.data(0, Qt.UserRole)
                 tool = next((t for t in self.tools if t.id == tool_id), None)
-                visible = bool(tool and item_type and tool_accepts_item(tool, item_type)) if item_type else False
-                titem.setHidden(not visible)
-                if visible:
+                if not tool:
+                    titem.setHidden(True)
+                    continue
+
+                visible_for_type = bool(item_type and tool_accepts_item(tool, item_type)) if item_type else False
+                visible_for_profile = (tool.id in profile_tool_ids) if profile else visible_for_type
+                titem.setHidden(not visible_for_profile)
+                titem.setDisabled(not self._tool_is_executable(tool))
+                if visible_for_profile:
                     any_visible = True
             gitem.setHidden(not any_visible)
 
+    def on_profile_changed(self, _idx: int = 0) -> None:
+        profile = self.selected_profile()
+        if profile:
+            self.run_btn.setText("Run profile")
+            for gi in range(self.tools_tree.topLevelItemCount()):
+                gitem = self.tools_tree.topLevelItem(gi)
+                for ci in range(gitem.childCount()):
+                    titem = gitem.child(ci)
+                    tool_id = titem.data(0, Qt.UserRole)
+                    titem.setCheckState(0, Qt.Checked if tool_id in set(profile.tool_ids) else Qt.Unchecked)
+        else:
+            self.run_btn.setText("Run")
+        self.filter_tools_for_current_item()
     def on_tool_selected(self) -> None:
         sel = self.tools_tree.selectedItems()
         if not sel:
@@ -497,25 +605,34 @@ class MainWindow(QMainWindow):
                 out[p.id] = str(w.text())  # type: ignore
         return out
 
-    def collect_checked_tools(self) -> List[ToolDef]:
-        checked: List[ToolDef] = []
-        root_count = self.tools_tree.topLevelItemCount()
-        for gi in range(root_count):
-            gitem = self.tools_tree.topLevelItem(gi)
-            if gitem.isHidden():
+    def _tool_outputs_exist(self, step_dir: Path, tool: ToolDef) -> bool:
+        if not tool.produces:
+            return False
+        return all((step_dir / out).exists() for out in tool.produces)
+
+    def _find_reusable_step_dir(self, tool: ToolDef) -> Optional[Path]:
+        if not self.current_item or not tool.produces:
+            return None
+
+        runs_dir = self.current_item.work_dir / "runs"
+        if not runs_dir.exists():
+            return None
+
+        # newest first
+        for run_dir in sorted([d for d in runs_dir.iterdir() if d.is_dir()], reverse=True):
+            step_dir = run_dir / "steps" / tool.id
+            if self._tool_outputs_exist(step_dir, tool):
+                return step_dir
+        return None
+
+    def _prepare_skipped_outputs(self, src_step_dir: Path, dst_step_dir: Path, tool: ToolDef) -> None:
+        for rel_out in tool.produces:
+            src = src_step_dir / rel_out
+            dst = dst_step_dir / rel_out
+            if not src.exists():
                 continue
-            for ci in range(gitem.childCount()):
-                titem = gitem.child(ci)
-                if titem.isHidden():
-                    continue
-                if titem.checkState(0) == Qt.Checked:
-                    tool_id = titem.data(0, Qt.UserRole)
-                    tool = next((t for t in self.tools if t.id == tool_id), None)
-                    if tool:
-                        checked.append(tool)
-        # preserve global sort
-        checked.sort(key=lambda x: (x.ui.stage, x.ui.order, x.id))
-        return checked
+            ensure_dir(dst.parent)
+            dst.write_bytes(src.read_bytes())
 
     def on_run_selected(self) -> None:
         if not self.current_item:
@@ -523,11 +640,31 @@ class MainWindow(QMainWindow):
         if self.runner.is_running():
             return
 
-        tools = self.collect_checked_tools()
+        mode = self.selected_mode()
+        profile = self.selected_profile()
+
+        if mode == "automatic":
+            if not profile:
+                QMessageBox.information(self, "Automatic mode", "Select a pipeline profile to run automatically.")
+                return
+            profile_ids = set(profile.tool_ids)
+            tools = [t for t in self.tools if t.id in profile_ids]
+            tools.sort(key=lambda x: (x.ui.stage, x.ui.order, x.id))
+        else:
+            # Manual mode = one step at a time (selected tool only).
+            sel = self.tools_tree.selectedItems()
+            tool_id = sel[0].data(0, Qt.UserRole) if sel else None
+            tool = next((t for t in self.tools if t.id == tool_id), None)
+            if not tool or not self._tool_is_executable(tool):
+                QMessageBox.information(self, "Manual mode", "Select one executable tool from the list.")
+                return
+            tools = [tool]
+
         if not tools:
-            QMessageBox.information(self, "No tools selected", "Select at least one tool (checkbox) in the tool list.")
+            QMessageBox.information(self, "No tools selected", "Select at least one executable tool.")
             return
 
+        # Always create a new run when pressing Run.
         run_id = self.orch.new_run(self.current_item)
         self.current_run_id = run_id
 
@@ -539,21 +676,26 @@ class MainWindow(QMainWindow):
             step_dir = self.orch.step_dir(self.current_item, run_id, tool.id)
             step_dirs[tool.id] = step_dir
 
-            # params are taken from the currently selected tool panel if it matches,
-            # otherwise defaults from YAML.
-            params = {}
-            sel = self.tools_tree.selectedItems()
-            selected_tool_id = sel[0].data(0, Qt.UserRole) if sel else None
-            if selected_tool_id == tool.id and hasattr(self, "param_widgets"):
+            params: Dict[str, Any] = {}
+            if mode == "manual" and hasattr(self, "param_widgets"):
                 params = self.get_params_for_tool(tool)
             else:
-                # defaults
                 for p in tool.params:
                     if p.default is not None:
                         params[p.id] = p.default
-            requests.append(ToolRunRequest(tool=tool, params=params))
 
-        self.console.appendPlainText(f"[{now_iso()}] RUN {run_id} starting: " + ", ".join(t.id for t in tools))
+            skip = False
+            skip_reason = ""
+            if mode == "automatic":
+                src_step_dir = self._find_reusable_step_dir(tool)
+                if src_step_dir is not None:
+                    self._prepare_skipped_outputs(src_step_dir, step_dir, tool)
+                    skip = True
+                    skip_reason = "Skipped: outputs already available from a previous run"
+
+            requests.append(ToolRunRequest(tool=tool, params=params, skip=skip, skip_reason=skip_reason))
+
+        self.console.appendPlainText(f"[{now_iso()}] RUN {run_id} mode={mode}: " + ", ".join(t.id for t in tools))
         self.status_lbl.setText(f"Running (run_id={run_id})")
         self.progress.setValue(0)
         self.retry_btn.setEnabled(False)
@@ -640,12 +782,13 @@ class MainWindow(QMainWindow):
         # app-level log
         jsonl_append(self.work_root / "ui_events.log.jsonl", {"t": t, **evt})
 
+    def on_step_finished(self, tool_id: str, step_meta: Dict[str, Any]) -> None:
+        if self.current_item and self.current_run_id:
+            self.orch.record_step_result(self.current_item, self.current_run_id, tool_id, step_meta)
+        self.filter_tools_for_current_item()
+
     def on_tool_queue_finished(self, exit_code: int, step_meta: Optional[Dict[str, Any]]) -> None:
         self.progress_timer.stop()
-
-        # If step_meta is present, record it
-        if self.current_item and self.current_run_id and self.runner.current_tool and step_meta:
-            self.orch.record_step_result(self.current_item, self.current_run_id, self.runner.current_tool.id, step_meta)
 
         if exit_code == 0:
             self.status_lbl.setText("Done")

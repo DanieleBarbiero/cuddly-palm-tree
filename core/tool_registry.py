@@ -40,6 +40,14 @@ class ToolDef:
     params: List[ToolParam]
 
 
+@dataclass(frozen=True)
+class PipelineProfile:
+    id: str
+    name: str
+    description: str
+    tool_ids: List[str]
+
+
 def load_tools_yaml(path: Path) -> List[ToolDef]:
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     tools_raw = raw.get("tools", [])
@@ -84,6 +92,31 @@ def load_tools_yaml(path: Path) -> List[ToolDef]:
 
     # Stable sort for UI
     out.sort(key=lambda x: (x.ui.stage, x.ui.order, x.ui.group, x.id))
+    return out
+
+
+def load_pipeline_profiles(path: Path, tools: List[ToolDef]) -> List[PipelineProfile]:
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    profiles_raw = raw.get("profiles", [])
+
+    tool_by_id = {t.id: t for t in tools}
+    out: List[PipelineProfile] = []
+
+    for p in profiles_raw:
+        ids = [str(x) for x in p.get("tools", [])]
+        # keep only tools that currently exist and sort by stage/order
+        ids = [x for x in ids if x in tool_by_id]
+        ids.sort(key=lambda x: (tool_by_id[x].ui.stage, tool_by_id[x].ui.order, x))
+
+        out.append(
+            PipelineProfile(
+                id=str(p["id"]),
+                name=str(p.get("name", p["id"])),
+                description=str(p.get("description", "")),
+                tool_ids=ids,
+            )
+        )
+
     return out
 
 
