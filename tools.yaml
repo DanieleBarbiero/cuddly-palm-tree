@@ -1,0 +1,34 @@
+# tools.yaml
+tools:
+  - id: dry_run
+    name: Dry run (simulazione)
+    description: Simula lavoro, emette progress, fallisce random per testare retry.
+    command:
+      kind: python_module
+      module: tools.dry_run_tool
+    accepts: ["*"]
+    requires: []
+    produces: ["step_meta.json", "progress.json", "artifacts/dry_run_result.json"]
+    ui:
+      group: "00. Diagnostics"
+      stage: 0
+      order: 10
+    params:
+      - id: duration_sec
+        label: "Duration (sec)"
+        type: int
+        default: 6
+        min: 1
+        max: 120
+      - id: tick_ms
+        label: "Tick (ms)"
+        type: int
+        default: 250
+        min: 50
+        max: 2000
+      - id: fail_prob
+        label: "Fail probability"
+        type: float
+        default: 0.35
+        min: 0.0
+        max: 1.0
