@@ -605,25 +605,6 @@ class MainWindow(QMainWindow):
                 out[p.id] = str(w.text())  # type: ignore
         return out
 
-    def collect_checked_tools(self) -> List[ToolDef]:
-        checked: List[ToolDef] = []
-        root_count = self.tools_tree.topLevelItemCount()
-        for gi in range(root_count):
-            gitem = self.tools_tree.topLevelItem(gi)
-            if gitem.isHidden():
-                continue
-            for ci in range(gitem.childCount()):
-                titem = gitem.child(ci)
-                if titem.isHidden() or titem.isDisabled():
-                    continue
-                if titem.checkState(0) == Qt.Checked:
-                    tool_id = titem.data(0, Qt.UserRole)
-                    tool = next((t for t in self.tools if t.id == tool_id), None)
-                    if tool:
-                        checked.append(tool)
-        checked.sort(key=lambda x: (x.ui.stage, x.ui.order, x.id))
-        return checked
-
     def _tool_outputs_exist(self, step_dir: Path, tool: ToolDef) -> bool:
         if not tool.produces:
             return False
@@ -669,40 +650,34 @@ class MainWindow(QMainWindow):
             profile_ids = set(profile.tool_ids)
             tools = [t for t in self.tools if t.id in profile_ids]
             tools.sort(key=lambda x: (x.ui.stage, x.ui.order, x.id))
-            run_id = self.orch.new_run(self.current_item)
-            self.current_run_id = run_id
         else:
-            tools = self.collect_checked_tools()
-            if not tools:
-                QMessageBox.information(self, "Manual mode", "Check at least one executable tool.")
+            # Manual mode = one step at a time (selected tool only).
+            sel = self.tools_tree.selectedItems()
+            tool_id = sel[0].data(0, Qt.UserRole) if sel else None
+            tool = next((t for t in self.tools if t.id == tool_id), None)
+            if not tool or not self._tool_is_executable(tool):
+                QMessageBox.information(self, "Manual mode", "Select one executable tool from the list.")
                 return
-            # In manual mode we keep using the current run to unlock downstream steps.
-            run_id = self.current_run_id or self.orch.new_run(self.current_item)
-            self.current_run_id = run_id
+            tools = [tool]
 
         if not tools:
             QMessageBox.information(self, "No tools selected", "Select at least one executable tool.")
             return
 
+        # Always create a new run when pressing Run.
+        run_id = self.orch.new_run(self.current_item)
+        self.current_run_id = run_id
+
+        # prepare step dirs and requests
         step_dirs: Dict[str, Path] = {}
         requests: List[ToolRunRequest] = []
-
-        available_artifacts = set()
-        if self.current_item:
-            run_steps_dir = self.current_item.work_dir / "runs" / run_id / "steps"
-            if run_steps_dir.exists():
-                for p in run_steps_dir.rglob("*"):
-                    if p.is_file():
-                        available_artifacts.add(str(p.relative_to(run_steps_dir)).replace("\\", "/"))
 
         for tool in tools:
             step_dir = self.orch.step_dir(self.current_item, run_id, tool.id)
             step_dirs[tool.id] = step_dir
 
             params: Dict[str, Any] = {}
-            sel = self.tools_tree.selectedItems()
-            selected_tool_id = sel[0].data(0, Qt.UserRole) if sel else None
-            if selected_tool_id == tool.id and hasattr(self, "param_widgets"):
+            if mode == "manual" and hasattr(self, "param_widgets"):
                 params = self.get_params_for_tool(tool)
             else:
                 for p in tool.params:
@@ -711,15 +686,6 @@ class MainWindow(QMainWindow):
 
             skip = False
             skip_reason = ""
-
-            missing_reqs = [req for req in tool.requires if req not in available_artifacts]
-            if missing_reqs:
-                # Safety: never run a step if prereqs are missing.
-                self.console.appendPlainText(
-                    f"[{now_iso()}] SKIP tool={tool.id} missing prerequisites: {', '.join(missing_reqs)}"
-                )
-                continue
-
             if mode == "automatic":
                 src_step_dir = self._find_reusable_step_dir(tool)
                 if src_step_dir is not None:
@@ -727,18 +693,9 @@ class MainWindow(QMainWindow):
                     skip = True
                     skip_reason = "Skipped: outputs already available from a previous run"
 
-            if not skip:
-                available_artifacts.update(tool.produces)
-            else:
-                available_artifacts.update(tool.produces)
-
             requests.append(ToolRunRequest(tool=tool, params=params, skip=skip, skip_reason=skip_reason))
 
-        if not requests:
-            QMessageBox.information(self, "Nothing to run", "No checked/profile tools are executable with current prerequisites.")
-            return
-
-        self.console.appendPlainText(f"[{now_iso()}] RUN {run_id} mode={mode}: " + ", ".join(r.tool.id for r in requests))
+        self.console.appendPlainText(f"[{now_iso()}] RUN {run_id} mode={mode}: " + ", ".join(t.id for t in tools))
         self.status_lbl.setText(f"Running (run_id={run_id})")
         self.progress.setValue(0)
         self.retry_btn.setEnabled(False)
