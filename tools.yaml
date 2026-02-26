@@ -32,3 +32,97 @@ tools:
         default: 0.35
         min: 0.0
         max: 1.0
+
+  - id: docling_ingest
+    name: Docling fake / ingest
+    description: Step fake 1 per pipeline docling.
+    command: { kind: python_module, module: tools.fake_step_tool }
+    accepts: ["pdf"]
+    requires: []
+    produces: ["artifacts/docling_ingest.json"]
+    ui: { group: "10. Docling", stage: 10, order: 10 }
+    params:
+      - { id: duration_sec, label: "Duration (sec)", type: int, default: 2, min: 1, max: 60 }
+      - { id: tick_ms, label: "Tick (ms)", type: int, default: 200, min: 50, max: 2000 }
+      - { id: output_name, label: "Output name", type: str, default: "docling_ingest.json" }
+
+  - id: docling_transform
+    name: Docling fake / transform
+    description: Step fake 2 per pipeline docling (richiede output step 1).
+    command: { kind: python_module, module: tools.fake_step_tool }
+    accepts: ["pdf"]
+    requires: ["artifacts/docling_ingest.json"]
+    produces: ["artifacts/docling_transform.json"]
+    ui: { group: "10. Docling", stage: 10, order: 20 }
+    params:
+      - { id: duration_sec, label: "Duration (sec)", type: int, default: 2, min: 1, max: 60 }
+      - { id: tick_ms, label: "Tick (ms)", type: int, default: 200, min: 50, max: 2000 }
+      - { id: output_name, label: "Output name", type: str, default: "docling_transform.json" }
+
+  - id: docling_publish
+    name: Docling fake / publish
+    description: Step fake 3 per pipeline docling (richiede output step 2).
+    command: { kind: python_module, module: tools.fake_step_tool }
+    accepts: ["pdf"]
+    requires: ["artifacts/docling_transform.json"]
+    produces: ["artifacts/docling_publish.json"]
+    ui: { group: "10. Docling", stage: 10, order: 30 }
+    params:
+      - { id: duration_sec, label: "Duration (sec)", type: int, default: 2, min: 1, max: 60 }
+      - { id: tick_ms, label: "Tick (ms)", type: int, default: 200, min: 50, max: 2000 }
+      - { id: output_name, label: "Output name", type: str, default: "docling_publish.json" }
+
+  - id: excel_ingest
+    name: Excel fake / ingest
+    description: Step fake 1 per pipeline excel analytics.
+    command: { kind: python_module, module: tools.fake_step_tool }
+    accepts: ["xlsx", "xls", "csv"]
+    requires: []
+    produces: ["artifacts/excel_ingest.json"]
+    ui: { group: "20. Excel Analytics", stage: 20, order: 10 }
+    params:
+      - { id: duration_sec, label: "Duration (sec)", type: int, default: 2, min: 1, max: 60 }
+      - { id: tick_ms, label: "Tick (ms)", type: int, default: 200, min: 50, max: 2000 }
+      - { id: output_name, label: "Output name", type: str, default: "excel_ingest.json" }
+
+  - id: excel_analyze
+    name: Excel fake / analyze
+    description: Step fake 2 per pipeline excel analytics (richiede output step 1).
+    command: { kind: python_module, module: tools.fake_step_tool }
+    accepts: ["xlsx", "xls", "csv"]
+    requires: ["artifacts/excel_ingest.json"]
+    produces: ["artifacts/excel_analyze.json"]
+    ui: { group: "20. Excel Analytics", stage: 20, order: 20 }
+    params:
+      - { id: duration_sec, label: "Duration (sec)", type: int, default: 2, min: 1, max: 60 }
+      - { id: tick_ms, label: "Tick (ms)", type: int, default: 200, min: 50, max: 2000 }
+      - { id: output_name, label: "Output name", type: str, default: "excel_analyze.json" }
+
+  - id: excel_export
+    name: Excel fake / export
+    description: Step fake 3 per pipeline excel analytics (richiede output step 2).
+    command: { kind: python_module, module: tools.fake_step_tool }
+    accepts: ["xlsx", "xls", "csv"]
+    requires: ["artifacts/excel_analyze.json"]
+    produces: ["artifacts/excel_export.json"]
+    ui: { group: "20. Excel Analytics", stage: 20, order: 30 }
+    params:
+      - { id: duration_sec, label: "Duration (sec)", type: int, default: 2, min: 1, max: 60 }
+      - { id: tick_ms, label: "Tick (ms)", type: int, default: 200, min: 50, max: 2000 }
+      - { id: output_name, label: "Output name", type: str, default: "excel_export.json" }
+
+profiles:
+  - id: diagnostics_basic
+    name: Diagnostics / Basic
+    description: Profilo demo con il tool di dry-run.
+    tools: ["dry_run"]
+
+  - id: docling_pipeline_fake
+    name: Docling / Fake pipeline
+    description: Pipeline fake con 3 step chained per documenti PDF.
+    tools: ["docling_ingest", "docling_transform", "docling_publish"]
+
+  - id: excel_pipeline_fake
+    name: Excel analytics / Fake pipeline
+    description: Pipeline fake con 3 step chained per fogli excel/csv.
+    tools: ["excel_ingest", "excel_analyze", "excel_export"]
